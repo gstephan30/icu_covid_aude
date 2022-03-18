@@ -1,0 +1,58 @@
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(lubridate)
+
+icu_de <- readRDS(url("https://raw.githubusercontent.com/gstephan30/icu_covid_data/master/data/covid_beds.rds")) %>% 
+  transmute(bundesland, betten_belegt = faelle_covid_aktuell, betten_total, perc = betten_belegt/betten_total, date = as_date(daten_stand)) %>% 
+  filter(date == max(date)) %>% 
+  group_by(date, bundesland) %>% 
+  summarise(IntensivBettenBelCovid19 = sum(betten_belegt), 
+            IntensivBettenKapGes = sum(betten_total)) %>% 
+  
+  mutate(perc = IntensivBettenBelCovid19/IntensivBettenKapGes*100) %>% 
+  janitor::clean_names() 
+icu_au <- read_csv2("https://raw.githubusercontent.com/gstephan30/icu_au/master/data_recent/Hospitalisierung.csv") %>% 
+  mutate(Meldedatum = dmy_hms(Meldedatum)) %>% 
+  filter(Meldedatum == max(Meldedatum)) %>% 
+  transmute(date = as_date(Meldedatum), Bundesland, IntensivBettenBelCovid19, 
+            IntensivBettenKapGes, perc = IntensivBettenBelCovid19/IntensivBettenKapGes*100) %>% 
+  janitor::clean_names()
+
+
+# aut_shp <- raster::getData("GADM", country = "AUT", level = 1)
+# de_shp <- raster::getData("GADM", country = "DEU", level = 1)
+library(maptools)
+gpclibPermit()
+aut_tidy <- readRDS("gadm36_AUT_1_sp.rds") %>% 
+  broom::tidy(region = "NAME_1")
+de_tidy <- readRDS("gadm36_DEU_1_sp.rds") %>% 
+  broom::tidy(region = "NAME_1")
+
+data <- bind_rows(
+  aut_tidy %>% 
+    left_join(
+      icu_au %>% 
+        rename(id = bundesland) %>% 
+        select(id, perc)
+    ),
+  de_tidy %>% 
+    left_join(
+      icu_de %>% 
+        rename(id = bundesland) %>% 
+        select(id, perc)
+    ) 
+) 
+midpunkt <- ((max(data$perc) - min(data$perc)) /2) + min(data$perc)
+
+data %>% 
+  ggplot() +
+  geom_polygon(aes(long, lat, group = group, fill = perc), color = "grey50") +
+  coord_quickmap() +
+  theme_void() +
+  labs(title = "Current Occupancy of COVID-19 cases on ICU",
+       fill = "COVID-19 cases in % on ICU") +
+  scale_fill_gradient2(low = "#0081a7", mid = "#fdfcdc", high = "#f07167", midpoint = midpunkt)
+
+
+
