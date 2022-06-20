@@ -68,7 +68,7 @@ midpunkt <- ((max(data$perc) - min(data$perc)) /2) + min(data$perc)
 ```
 
 
-```{r}
+```{r fig.width=14, fig.height=14}
 library(scales)
 data %>% 
   ggplot() +

@@ -3,7 +3,7 @@
     "path": "~/Documents/icu_covid_aude/README.Rmd",
     "project_path": "README.Rmd",
     "type": "r_markdown",
-    "hash": "3015271740",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1647602771719.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "83,49",
-        "scrollLine": "59"
+        "cursorPosition": "24,18",
+        "scrollLine": "15"
     },
     "folds": "",
-    "lastKnownWriteTime": 1647603375,
+    "lastKnownWriteTime": 1647605615,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1647603375820,
+    "last_content_update": 1647605615947,
     "read_only": false,
     "read_only_alternatives": []
 }
